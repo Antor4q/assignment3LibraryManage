@@ -32,5 +32,3 @@ function main() {
     });
 }
 main();
-// assignment3 - db user, XVis6k8XBb9ez8uS - bd pass
-//  mongodb url -- mongodb+srv://<db_username>:<db_password>@cluster0.i8hseoh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0

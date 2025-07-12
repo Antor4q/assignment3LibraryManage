@@ -26,6 +26,24 @@ const bookSchema = new mongoose_1.Schema({
     versionKey: false,
     timestamps: true
 });
+bookSchema.pre("findOneAndUpdate", function (next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const update = this.getUpdate();
+        if (update.copies !== undefined) {
+            if (update.copies === 0) {
+                update.available = false;
+            }
+            else {
+                update.available = true;
+            }
+            this.setUpdate(update);
+        }
+        next();
+    });
+});
+bookSchema.post("save", function (doc) {
+    console.log(`${doc.title} has been created successfully.`);
+});
 bookSchema.method("updateAvailability", function () {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.copies === 0) {
