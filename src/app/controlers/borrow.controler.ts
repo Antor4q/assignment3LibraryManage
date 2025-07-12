@@ -38,7 +38,7 @@ borrowRoute.post("/borrow", async (req: Request, res: Response): Promise<void> =
       message: "Book borrowed successfully",
       data: borrow
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Book note successfully borrowed", error });
   }

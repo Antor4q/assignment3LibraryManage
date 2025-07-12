@@ -1,8 +1,8 @@
 import {Server} from "http"
-import app from "./app/app"
+import app from "./app"
 import mongoose from "mongoose";
 
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let server: Server;
 const port = 5000
 

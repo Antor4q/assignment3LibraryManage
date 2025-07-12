@@ -7,8 +7,8 @@ booksRoute.get("/books", async (req: Request, res: Response) => {
   const { filter, sortBy , sort, limit} = req.query;
 
   try {
-    const filterObj: any = {};
-    if (filter) {
+    const filterObj: { genre?: string } = {};
+    if (filter && typeof filter === "string") {
       filterObj.genre = filter;
     }
 
@@ -23,11 +23,11 @@ booksRoute.get("/books", async (req: Request, res: Response) => {
       message: "Books retrieved successfully",
       data
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       message: "Failed to retrieve books",
-      error: error.message
+      error
     });
   }
 });
@@ -42,11 +42,11 @@ booksRoute.get("/books/:bookId", async (req:Request,res:Response)=>{
       message: "Book retrieved successfully",
       data
     });
-    }catch(error:any){
+    }catch(error){
         res.status(500).json({
       success: false,
       message: "Failed to retrieve book",
-      error: error.message
+      error
     });
     }
 })
@@ -62,11 +62,11 @@ booksRoute.patch("/books/:bookId", async(req:Request,res:Response)=> {
       message: "Books updated successfully",
       data
     });
-   }catch(error:any){
+   }catch(error){
          res.status(500).json({
       success: false,
       message: "Failed to update book",
-      error: error.message
+      error
     });
    }
 })
@@ -82,11 +82,11 @@ booksRoute.delete("/books/:bookId", async(req:Request,res:Response)=> {
       message: "Book deleted successfully",
       data
     });
-   }catch(error:any){
+   }catch(error){
          res.status(500).json({
       success: false,
       message: "Failed to delete book",
-      error: error.message
+      error
     });
    }
 })
