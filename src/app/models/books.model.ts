@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, UpdateQuery } from "mongoose";
 import { IBook } from "../interface/books.interface";
 
 
@@ -23,6 +23,23 @@ const bookSchema = new Schema<IBookDocument>({
     timestamps: true
 }
 )
+
+bookSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate() as UpdateQuery<typeof Book>;
+  if (update.copies !== undefined){
+  if (update.copies === 0) {
+      update.available = false;
+    } else {
+      update.available = true;
+    }
+    this.setUpdate(update);
+  }
+  next();
+});
+
+bookSchema.post("save", function (doc) {
+  console.log(`${doc.title} has been created successfully.`);
+});
 
 bookSchema.method("updateAvailability", async function() {
   if (this.copies === 0) {
