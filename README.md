@@ -33,7 +33,9 @@ It is designed to:
 
 git clone - https://github.com/Antor4q/assignment3LibraryManage.git
 
+### 2. Change directory
 cd assignment3LibraryManage
 
 npm install
+
 npm run dev
