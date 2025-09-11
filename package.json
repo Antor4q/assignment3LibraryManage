@@ -14,12 +14,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "mongoose": "^8.16.2",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "eslint": "^9.31.0",
     "globals": "^16.3.0",

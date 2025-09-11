@@ -4,7 +4,7 @@ import { Book } from "../models/books.model";
 export const booksRoute = express.Router()
 
 booksRoute.get("/books", async (req: Request, res: Response) => {
-  const { filter, sortBy , sort, limit} = req.query;
+  const { filter, sortBy, sort, limit,page } = req.query;
 
   try {
     const filterObj: { genre?: string } = {};
@@ -13,24 +13,38 @@ booksRoute.get("/books", async (req: Request, res: Response) => {
     }
 
     const sortOrder = sort === "asc" ? 1 : -1;
+    
+    const pageNumber = page ? parseInt(page as string):1;
+    const limitNumber = limit ? parseInt(limit as string): 10;
+    const skip = (pageNumber - 1) * limitNumber;
 
-    const data = await Book.find({genre:filter})
-      .sort({ [sortBy as string]: sortOrder })
-      .limit(parseInt(limit as string));
+    const total= await Book.countDocuments(filterObj)
+    const totalPages = Math.ceil(total / limitNumber)
+
+    const data = await Book.find(filterObj)
+      .sort(sortBy ? { [sortBy as string]: sortOrder } : {})
+      .skip(skip)
+      .limit(limitNumber); 
 
     res.status(200).json({
       success: true,
       message: "Books retrieved successfully",
-      data
+      data,
+      pagination: {
+        totalPages,
+        page:pageNumber,
+        limit:limitNumber
+      }
     });
   } catch (error: unknown) {
     res.status(500).json({
       success: false,
       message: "Failed to retrieve books",
-      error
+      error,
     });
   }
 });
+
 
 booksRoute.get("/books/:bookId", async (req:Request,res:Response)=>{
     try{
@@ -51,12 +65,13 @@ booksRoute.get("/books/:bookId", async (req:Request,res:Response)=>{
     }
 })
 
-booksRoute.patch("/books/:bookId", async(req:Request,res:Response)=> {
+booksRoute.put("/books/:bookId", async(req:Request,res:Response)=> {
    try{
      const bookId = req.params.bookId
     const body = req.body
+    console.log(body)
     const data = await Book.findByIdAndUpdate(bookId,body,{new: true})
-
+  console.log(data,"dataupdated")
      res.status(200).json({
       success: true,
       message: "Books updated successfully",

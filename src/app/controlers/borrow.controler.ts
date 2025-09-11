@@ -7,11 +7,11 @@ export const borrowRoute = express.Router()
 
 
 
-borrowRoute.post("/borrow", async (req: Request, res: Response): Promise<void> => {
+borrowRoute.post("/borrow/:bookId", async (req: Request, res: Response): Promise<void> => {
   try {
     const { book: bookId, quantity, dueDate } = req.body;
 
-
+    console.log(bookId, quantity, dueDate, "from post api")
     const book = await Book.findById(bookId);
     if (!book) {
      res.status(404).json({ success: false, message: "Book not found" });
@@ -45,14 +45,33 @@ borrowRoute.post("/borrow", async (req: Request, res: Response): Promise<void> =
 });
 
 borrowRoute.get("/borrow", async (req:Request,res:Response)=>{
+  const {page=1, limit = 10} = req.query;
+  const pageNumber = parseInt(page as string);
+  const limitNumber = parseInt(limit as string);
+  const skip = (pageNumber -1) * limitNumber;
+
   try{
+
+    const total = await Borrow.aggregate([
+      { $group: { _id: "$book", totalQuantity: { $sum: "$quantity" } } }
+    ]);
+
+    const totalPages = Math.ceil(total.length / limitNumber);
+
     const data = await Borrow.aggregate([
       {
         $group: {
           _id: "$book",
           totalQuantity: {$sum: "$quantity"}
         }
-      },{
+      },
+      {
+        $skip:skip
+      },
+      {
+        $limit:limitNumber
+      },
+      {
         $lookup : {
           from: "books",
           localField: "_id",
@@ -73,7 +92,14 @@ borrowRoute.get("/borrow", async (req:Request,res:Response)=>{
       }
     ])
 
-    res.status(200).json({success:true,message:"Borrowed books summary retrieved successfully",data})
+    res.status(200).json({success:true,message:"Borrowed books summary retrieved successfully",
+      data,
+      pagination: {
+        totalPages,
+        page: pageNumber,
+        limit: limitNumber
+      }
+    })
   }catch(error){
       res.status(500).json({success: false, message: "Failed to retrieve borrowed books summary", error})
   }
