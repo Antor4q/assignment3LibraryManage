@@ -18,7 +18,7 @@ booksRoute.get("/books", async (req: Request, res: Response) => {
     const limitNumber = limit ? parseInt(limit as string): 10;
     const skip = (pageNumber - 1) * limitNumber;
 
-    
+
     const total= await Book.countDocuments(filterObj)
     const totalPages = Math.ceil(total / limitNumber)
 
@@ -37,6 +37,7 @@ booksRoute.get("/books", async (req: Request, res: Response) => {
         limit:limitNumber
       }
     });
+    
   } catch (error: unknown) {
     res.status(500).json({
       success: false,
