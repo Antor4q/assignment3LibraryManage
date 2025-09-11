@@ -1,18 +1,17 @@
 import express, { Application, Request, Response } from "express"
 import { booksRoute } from "./app/controlers/books.controler"
 import { borrowRoute } from "./app/controlers/borrow.controler"
-import cors from "cors"
+import cors from 'cors';
 
 const app:Application = express()
 
 app.use(express.json())
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://athenaeum-lib.vercel.app"
-  ],
-  credentials: true
-}))
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'https://athenaeum-lib.vercel.app']
+   })
+);
+
 
 
 app.use("/api", booksRoute)
