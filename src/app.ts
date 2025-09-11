@@ -6,7 +6,11 @@ import cors from "cors"
 const app:Application = express()
 
 app.use(express.json())
-app.use(cors({origin: ["http://localhost:5173","https://athenaeum-lib.vercel.app"]}))
+app.use(cors({origin: [
+    "http://localhost:5173",
+    "https://athenaeum-lib.vercel.app"
+  ],
+  credentials: true,}))
 
 app.use("/api", booksRoute)
 app.use("/api", borrowRoute)
