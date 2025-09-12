@@ -8,7 +8,7 @@ const app:Application = express()
 app.use(express.json())
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://athenaeum-lib.vercel.app']
+    origin: ["http://localhost:5173", "https://athenaeum-lib.vercel.app","https://athenaeum-lib.vercel.app"]
    })
 );
 
