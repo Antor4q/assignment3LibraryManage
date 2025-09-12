@@ -10,16 +10,23 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://athenaeum-lib.vercel.app"
 ];
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-}));
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (like curl, Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false); // instead of throwing error
+      }
+    },
+    credentials: true,
+  })
+);
+
+// Handle preflight OPTIONS request globally
+app.options("*", cors());
 
 
 
