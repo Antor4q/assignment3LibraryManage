@@ -17,9 +17,10 @@ const express_1 = __importDefault(require("express"));
 const borrow_model_1 = require("../models/borrow.model");
 const books_model_1 = require("../models/books.model");
 exports.borrowRoute = express_1.default.Router();
-exports.borrowRoute.post("/borrow", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.borrowRoute.post("/borrow/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { book: bookId, quantity, dueDate } = req.body;
+        console.log(bookId, quantity, dueDate, "from post api");
         const book = yield books_model_1.Book.findById(bookId);
         if (!book) {
             res.status(404).json({ success: false, message: "Book not found" });
@@ -48,14 +49,29 @@ exports.borrowRoute.post("/borrow", (req, res) => __awaiter(void 0, void 0, void
     }
 }));
 exports.borrowRoute.get("/borrow", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
     try {
+        const total = yield borrow_model_1.Borrow.aggregate([
+            { $group: { _id: "$book", totalQuantity: { $sum: "$quantity" } } }
+        ]);
+        const totalPages = Math.ceil(total.length / limitNumber);
         const data = yield borrow_model_1.Borrow.aggregate([
             {
                 $group: {
                     _id: "$book",
                     totalQuantity: { $sum: "$quantity" }
                 }
-            }, {
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limitNumber
+            },
+            {
                 $lookup: {
                     from: "books",
                     localField: "_id",
@@ -75,7 +91,14 @@ exports.borrowRoute.get("/borrow", (req, res) => __awaiter(void 0, void 0, void 
                 },
             }
         ]);
-        res.status(200).json({ success: true, message: "Borrowed books summary retrieved successfully", data });
+        res.status(200).json({ success: true, message: "Borrowed books summary retrieved successfully",
+            data,
+            pagination: {
+                totalPages,
+                page: pageNumber,
+                limit: limitNumber
+            }
+        });
     }
     catch (error) {
         res.status(500).json({ success: false, message: "Failed to retrieve borrowed books summary", error });

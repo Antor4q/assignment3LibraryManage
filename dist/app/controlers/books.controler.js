@@ -17,27 +17,38 @@ const express_1 = __importDefault(require("express"));
 const books_model_1 = require("../models/books.model");
 exports.booksRoute = express_1.default.Router();
 exports.booksRoute.get("/books", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { filter, sortBy, sort, limit } = req.query;
+    const { filter, sortBy, sort, limit, page } = req.query;
     try {
         const filterObj = {};
         if (filter && typeof filter === "string") {
             filterObj.genre = filter;
         }
         const sortOrder = sort === "asc" ? 1 : -1;
-        const data = yield books_model_1.Book.find({ genre: filter })
-            .sort({ [sortBy]: sortOrder })
-            .limit(parseInt(limit));
+        const pageNumber = page ? parseInt(page) : 1;
+        const limitNumber = limit ? parseInt(limit) : 10;
+        const skip = (pageNumber - 1) * limitNumber;
+        const total = yield books_model_1.Book.countDocuments(filterObj);
+        const totalPages = Math.ceil(total / limitNumber);
+        const data = yield books_model_1.Book.find(filterObj)
+            .sort(sortBy ? { [sortBy]: sortOrder } : {})
+            .skip(skip)
+            .limit(limitNumber);
         res.status(200).json({
             success: true,
             message: "Books retrieved successfully",
-            data
+            data,
+            pagination: {
+                totalPages,
+                page: pageNumber,
+                limit: limitNumber
+            }
         });
     }
     catch (error) {
         res.status(500).json({
             success: false,
             message: "Failed to retrieve books",
-            error
+            error,
         });
     }
 }));
@@ -59,11 +70,13 @@ exports.booksRoute.get("/books/:bookId", (req, res) => __awaiter(void 0, void 0,
         });
     }
 }));
-exports.booksRoute.patch("/books/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.booksRoute.put("/books/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const bookId = req.params.bookId;
         const body = req.body;
+        console.log(body);
         const data = yield books_model_1.Book.findByIdAndUpdate(bookId, body, { new: true });
+        console.log(data, "dataupdated");
         res.status(200).json({
             success: true,
             message: "Books updated successfully",
