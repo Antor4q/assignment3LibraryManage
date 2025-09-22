@@ -16,9 +16,6 @@ app.use(cors({
   credentials:true,
 }));
 
-// Handle preflight OPTIONS request globally
-// app.options("*", cors());
-
 
 
 app.use("/api", booksRoute)
